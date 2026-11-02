@@ -1,12 +1,12 @@
 {
   "version": 2,
-  "buildCommand": "npm run build",
+  "buildCommand": "prisma generate && npm run build",
   "outputDirectory": "dist",
   "installCommand": "npm install",
   "framework": "nestjs",
   "functions": {
     "src/main.ts": {
-      "maxDuration": 30
+      "maxDuration": 60
     }
   },
   "rewrites": [
