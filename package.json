@@ -1,0 +1,31 @@
+{
+  "name": "e-catalog",
+  "version": "1.0.0",
+  "description": "Full-stack e-catalog & admin control panel",
+  "private": true,
+  "scripts": {
+    "dev:frontend": "cd frontend && pnpm dev",
+    "dev:backend": "cd backend && pnpm start:dev",
+    "build:frontend": "cd frontend && pnpm build",
+    "build:backend": "cd backend && pnpm build",
+    "build": "pnpm build:frontend && pnpm build:backend",
+    "lint:frontend": "cd frontend && pnpm lint",
+    "lint:backend": "cd backend && pnpm lint",
+    "lint": "pnpm lint:frontend && pnpm lint:backend",
+    "typecheck:frontend": "cd frontend && pnpm typecheck",
+    "typecheck:backend": "cd backend && pnpm typecheck",
+    "typecheck": "pnpm typecheck:frontend && pnpm typecheck:backend",
+    "test:frontend": "cd frontend && pnpm test",
+    "test:backend": "cd backend && pnpm test",
+    "test": "pnpm test:frontend && pnpm test:backend",
+    "prisma:generate": "cd backend && pnpm prisma:generate",
+    "prisma:migrate": "cd backend && pnpm prisma:migrate",
+    "prisma:seed": "cd backend && pnpm prisma:seed",
+    "prisma:studio": "cd backend && pnpm prisma:studio",
+    "prisma:validate": "cd backend && pnpm prisma:validate"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "packageManager": "pnpm@9.0.0"
+}

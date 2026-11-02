@@ -1,0 +1,66 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: ecatalog-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-ecatalog}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ecatalog}
+      POSTGRES_DB: ${POSTGRES_DB:-ecatalog}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-ecatalog}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: ecatalog-backend
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-ecatalog}:${POSTGRES_PASSWORD:-ecatalog}@postgres:5432/${POSTGRES_DB:-ecatalog}?schema=public
+      DIRECT_URL: postgresql://${POSTGRES_USER:-ecatalog}:${POSTGRES_PASSWORD:-ecatalog}@postgres:5432/${POSTGRES_DB:-ecatalog}?schema=public
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
+      PORT: 3001
+      NODE_ENV: production
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:5173}
+      BACKEND_URL: ${BACKEND_URL:-http://localhost:3001}
+      SUPABASE_URL: ${SUPABASE_URL}
+      SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY}
+      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY}
+      SUPABASE_STORAGE_BUCKET: ${SUPABASE_STORAGE_BUCKET}
+      ADMIN_BOOTSTRAP_NAME: ${ADMIN_BOOTSTRAP_NAME}
+      ADMIN_BOOTSTRAP_EMAIL: ${ADMIN_BOOTSTRAP_EMAIL}
+      ADMIN_BOOTSTRAP_PASSWORD: ${ADMIN_BOOTSTRAP_PASSWORD}
+      STORE_DEFAULT_NAME: ${STORE_DEFAULT_NAME}
+      STORE_DEFAULT_WHATSAPP: ${STORE_DEFAULT_WHATSAPP}
+    ports:
+      - "3001:3001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: ecatalog-frontend
+    environment:
+      VITE_API_URL: ${VITE_API_URL:-http://localhost:3001/api/v1}
+      VITE_APP_NAME: ${VITE_APP_NAME:-E-Catalog}
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
