@@ -9,7 +9,6 @@ import { formatCurrency } from '@/utils/helpers';
 import { showToast } from '@/components/ui/Toast';
 import { cn } from '@/utils/helpers';
 import { TruckIcon, UserIcon, ChatBubbleLeftRightIcon, ShieldCheckIcon, TagIcon } from '@heroicons/react/24/outline';
-import { CheckoutData } from '@/types';
 
 const checkoutSchema = z.object({
   customerName: z.string().min(2, 'Name must be at least 2 characters'),

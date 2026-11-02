@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { productsApi, productVariantsApi, productImagesApi, categoriesApi } from '@/lib/api';
-import { Product, Category, ProductVariant, ProductImage } from '@/types';
-import { useForm, useFieldArray } from 'react-hook-form';
+import { ProductVariant, ProductImage } from '@/types';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { showToast } from '@/components/ui/Toast';
@@ -17,8 +17,8 @@ import { Table } from '@/components/ui/Table';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { uploadsApi } from '@/lib/api';
 import {
-  PlusIcon, PencilIcon, TrashIcon, EyeIcon, PhotoIcon, CubeIcon, TagIcon,
-  ArrowUpIcon, ArrowDownIcon, CheckIcon, XMarkIcon
+  PlusIcon, PencilIcon, TrashIcon, PhotoIcon, CubeIcon, TagIcon,
+  CheckIcon
 } from '@heroicons/react/24/outline';
 
 const productSchema = z.object({
@@ -81,7 +81,7 @@ export function AdminProductFormPage() {
   });
 
   // Fetch images - product-level or variant-specific
-  const { data: images, isLoading: imagesLoading, refetch: refetchImages } = useQuery({
+  const { data: images, isLoading: imagesLoading } = useQuery({
     queryKey: ['productImages', id, selectedVariantForImages],
     queryFn: () => selectedVariantForImages 
       ? productImagesApi.listByVariant(selectedVariantForImages)
@@ -90,11 +90,21 @@ export function AdminProductFormPage() {
   });
 
   // Mutations
-  const productMutation = useMutation({
-    mutationFn: isEditing
-      ? ({ id, data }: { id: string; data: ProductFormData }) => productsApi.adminUpdate(id, data)
-      : (data: ProductFormData) => productsApi.adminCreate(data),
-    onSuccess: (newProduct) => {
+  const productMutation = useMutation<
+    any,
+    Error,
+    { id: string; data: ProductFormData } | ProductFormData
+  >({
+    mutationFn: async (variables) => {
+      if (isEditing) {
+        const v = variables as { id: string; data: ProductFormData };
+        return productsApi.adminUpdate(v.id, v.data);
+      } else {
+        const v = variables as ProductFormData;
+        return productsApi.adminCreate(v);
+      }
+    },
+    onSuccess: (newProduct: any) => {
       queryClient.invalidateQueries({ queryKey: ['adminProducts'] });
       showToast.success(isEditing ? 'Product updated successfully' : 'Product created successfully');
       if (!isEditing) {
@@ -108,10 +118,20 @@ export function AdminProductFormPage() {
     },
   });
 
-  const variantMutation = useMutation({
-    mutationFn: editingVariant
-      ? ({ id, data }: { id: string; data: VariantFormData }) => productVariantsApi.update(id, data)
-      : (data: VariantFormData) => productVariantsApi.create(id!, data),
+  const variantMutation = useMutation<
+    any,
+    Error,
+    { id: string; data: VariantFormData } | VariantFormData
+  >({
+    mutationFn: async (variables) => {
+      if (editingVariant) {
+        const v = variables as { id: string; data: VariantFormData };
+        return productVariantsApi.update(v.id, v.data);
+      } else {
+        const v = variables as VariantFormData;
+        return productVariantsApi.create(id!, v);
+      }
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['productVariants', id] });
       showToast.success(editingVariant ? 'Variant updated' : 'Variant created');
@@ -167,12 +187,12 @@ export function AdminProductFormPage() {
     onError: (error: any) => showToast.error(error.message || 'Failed to delete image'),
   });
 
-  const reorderImagesMutation = useMutation({
-    mutationFn: (imageIds: string[]) => productImagesApi.reorder(id!, imageIds),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['productImages', id] });
-    },
-  });
+  // const reorderImagesMutation = useMutation({
+//     mutationFn: (imageIds: string[]) => productImagesApi.reorder(id!, imageIds),
+//     onSuccess: () => {
+//       queryClient.invalidateQueries({ queryKey: ['productImages', id] });
+//     },
+//   });
 
   const setPrimaryImageMutation = useMutation({
     mutationFn: (imageId: string) => productImagesApi.setPrimary(id!, imageId),
@@ -181,7 +201,7 @@ export function AdminProductFormPage() {
     },
   });
 
-  const { register, handleSubmit, reset, formState: { errors }, setValue, watch, control } = useForm<ProductFormData>({
+  const { register, handleSubmit, reset, formState: { errors }, setValue } = useForm<ProductFormData>({
     resolver: zodResolver(productSchema),
     defaultValues: {
       categoryId: '',
@@ -195,7 +215,7 @@ export function AdminProductFormPage() {
     },
   });
 
-  const { register: variantRegister, handleSubmit: variantHandleSubmit, reset: variantReset, formState: { errors: variantErrors }, setValue: setVariantValue } = useForm<VariantFormData>({
+  const { register: variantRegister, handleSubmit: variantHandleSubmit, reset: variantReset, formState: { errors: variantErrors } } = useForm<VariantFormData>({
     resolver: zodResolver(variantSchema),
     defaultValues: {
       name: '',
@@ -206,8 +226,6 @@ export function AdminProductFormPage() {
       isActive: true,
     },
   });
-
-  const watchedName = watch('name');
 
   const generateSlug = (name: string) => {
     return name
@@ -312,9 +330,9 @@ export function AdminProductFormPage() {
     }
   };
 
-  const handleReorderImages = (imageIds: string[]) => {
-    reorderImagesMutation.mutate(imageIds);
-  };
+  // const handleReorderImages = (imageIds: string[]) => {
+  //   reorderImagesMutation.mutate(imageIds);
+  // };
 
   const handleSetPrimary = (imageId: string) => {
     setPrimaryImageMutation.mutate(imageId);

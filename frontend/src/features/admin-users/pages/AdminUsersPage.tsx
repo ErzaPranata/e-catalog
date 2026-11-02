@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { adminUsersApi } from '@/lib/api';
-import { AdminUser, AdminRole, ADMIN_ROLE_LABELS } from '@/types';
+import { AdminUser, ADMIN_ROLE_LABELS } from '@/types';
 import { Table, Pagination } from '@/components/ui/Table';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
@@ -11,8 +11,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { showToast } from '@/components/ui/Toast';
-import { cn } from '@/utils/helpers';
-import { PlusIcon, PencilIcon, TrashIcon, KeyIcon, ShieldCheckIcon, UserCircleIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, PencilIcon, TrashIcon, KeyIcon } from '@heroicons/react/24/outline';
 
 const adminUserSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters').max(100),
@@ -58,14 +57,14 @@ export function AdminUsersPage() {
     onError: (error: any) => showToast.error(error.message || 'Failed to update user'),
   });
 
-  const changePasswordMutation = useMutation({
-    mutationFn: ({ id, password }: { id: string; password: string }) => adminUsersApi.changePassword(id, password),
-    onSuccess: () => {
-      showToast.success('Password changed successfully');
-      setIsModalOpen(false);
-    },
-    onError: (error: any) => showToast.error(error.message || 'Failed to change password'),
-  });
+  // const changePasswordMutation = useMutation({
+//     mutationFn: ({ id, password }: { id: string; password: string }) => adminUsersApi.changePassword(id, password),
+//     onSuccess: () => {
+//       showToast.success('Password changed successfully');
+//       setIsModalOpen(false);
+//     },
+//     onError: (error: any) => showToast.error(error.message || 'Failed to change password'),
+//   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => adminUsersApi.delete(id),
@@ -77,7 +76,7 @@ export function AdminUsersPage() {
     onError: (error: any) => showToast.error(error.message || 'Failed to delete user'),
   });
 
-  const { register, handleSubmit, reset, formState: { errors }, setValue } = useForm<AdminUserFormData>({
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<AdminUserFormData>({
     resolver: zodResolver(adminUserSchema),
     defaultValues: {
       name: '',
@@ -138,13 +137,13 @@ export function AdminUsersPage() {
     }
   };
 
-  const onPasswordSubmit = (data: AdminUserFormData) => {
-    if (!data.password) {
-      showToast.error('Password is required');
-      return;
-    }
-    changePasswordMutation.mutate({ id: editingUser!.id, password: data.password });
-  };
+  // const onPasswordSubmit = (data: AdminUserFormData) => {
+  //   if (!data.password) {
+  //     showToast.error('Password is required');
+  //     return;
+  //   }
+  //   changePasswordMutation.mutate({ id: editingUser!.id, password: data.password });
+  // };
 
   const columns = [
     { key: 'name', header: 'Name', render: (user: AdminUser) => (

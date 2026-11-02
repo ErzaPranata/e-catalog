@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { ordersApi } from '@/lib/api';
-import { Order, OrderStatus, PaymentStatus, ORDER_STATUS_LABELS, ORDER_STATUS_COLORS, PAYMENT_STATUS_LABELS, PAYMENT_STATUS_COLORS, formatCurrency } from '@/types';
+import { OrderStatus, PaymentStatus, ORDER_STATUS_LABELS, ORDER_STATUS_COLORS, PAYMENT_STATUS_LABELS, PAYMENT_STATUS_COLORS, formatCurrency } from '@/types';
 import { formatDate, formatRelativeTime } from '@/utils/helpers';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
@@ -12,7 +12,7 @@ import { showToast } from '@/components/ui/Toast';
 import { cn } from '@/utils/helpers';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
-  ArrowLeftIcon, UserIcon, PhoneIcon, MapPinIcon, ChatBubbleLeftRightIcon,
+  ArrowLeftIcon, UserIcon, ChatBubbleLeftRightIcon,
   TruckIcon, CheckCircleIcon, ClockIcon, XCircleIcon, CreditCardIcon,
   ArrowsUpDownIcon, EyeIcon, PrinterIcon
 } from '@heroicons/react/24/outline';
@@ -118,8 +118,8 @@ export function AdminOrderDetailPage() {
       <div className="flex flex-wrap gap-3">
         <div className="flex items-center gap-2 px-3 py-1 bg-gray-50 rounded-lg">
           <span className="text-sm font-medium text-gray-500">Status:</span>
-          <Badge variant={ORDER_STATUS_COLORS[order.status] as any}>
-            {ORDER_STATUS_LABELS[order.status]}
+          <Badge variant={ORDER_STATUS_COLORS[order.status as OrderStatus]}>
+            {ORDER_STATUS_LABELS[order.status as OrderStatus]}
           </Badge>
           <button
             onClick={() => { setNewStatus(
@@ -136,8 +136,8 @@ export function AdminOrderDetailPage() {
         </div>
         <div className="flex items-center gap-2 px-3 py-1 bg-gray-50 rounded-lg">
           <span className="text-sm font-medium text-gray-500">Payment:</span>
-          <Badge variant={PAYMENT_STATUS_COLORS[order.paymentStatus] as any}>
-            {PAYMENT_STATUS_LABELS[order.paymentStatus]}
+          <Badge variant={PAYMENT_STATUS_COLORS[order.paymentStatus as PaymentStatus]}>
+            {PAYMENT_STATUS_LABELS[order.paymentStatus as PaymentStatus]}
           </Badge>
           <button
             onClick={() => { setNewPaymentStatus(order.paymentStatus === 'UNPAID' ? 'PAID' : 'UNPAID'); setPaymentStatusModalOpen(true); }}
@@ -198,7 +198,7 @@ export function AdminOrderDetailPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
-                  {order.items.map((item) => (
+                  {order.items.map((item: typeof order.items[0]) => (
                     <tr key={item.id} className="hover:bg-gray-50">
                       <td className="px-4 py-4">
                         <div className="flex items-center gap-3">
@@ -236,7 +236,7 @@ export function AdminOrderDetailPage() {
           <div className="bg-white rounded-xl border border-gray-100 p-6">
             <dl className="space-y-3">
               <div className="flex justify-between border-b border-gray-100 pb-3">
-                <dt className="text-gray-600">Subtotal ({order.items.reduce((sum, i) => sum + i.quantity, 0)} items)</dt>
+                <dt className="text-gray-600">Subtotal ({order.items.reduce((sum: number, item: typeof order.items[0]) => sum + item.quantity, 0)} items)</dt>
                 <dd className="font-medium text-gray-900">{formatCurrency(Number(order.subtotal))}</dd>
               </div>
               <div className="flex justify-between text-green-600">
@@ -345,7 +345,7 @@ export function AdminOrderDetailPage() {
         size="md"
       >
         <div className="space-y-4">
-          <p className="text-gray-600">Current: <span className="font-medium">{ORDER_STATUS_LABELS[order.status]}</span></p>
+          <p className="text-gray-600">Current: <span className="font-medium">{ORDER_STATUS_LABELS[order.status as OrderStatus]}</span></p>
           <Select
             value={newStatus}
             onChange={(e) => setNewStatus(e.target.value as OrderStatus)}
@@ -371,7 +371,7 @@ export function AdminOrderDetailPage() {
         size="md"
       >
         <div className="space-y-4">
-          <p className="text-gray-600">Current: <span className="font-medium">{PAYMENT_STATUS_LABELS[order.paymentStatus]}</span></p>
+          <p className="text-gray-600">Current: <span className="font-medium">{PAYMENT_STATUS_LABELS[order.paymentStatus as PaymentStatus]}</span></p>
           <Select
             value={newPaymentStatus}
             onChange={(e) => setNewPaymentStatus(e.target.value as PaymentStatus)}

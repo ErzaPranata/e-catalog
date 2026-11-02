@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { productsApi } from '@/lib/api';
-import { Product, ProductVariant } from '@/types';
+import { ProductVariant } from '@/types';
 import { ProductDetailSkeleton } from '@/components/ui/Skeleton';
 import { formatCurrency } from '@/utils/helpers';
 import { useCartStore } from '@/stores/cartStore';
@@ -109,7 +109,7 @@ export function ProductDetailPage() {
                 />
                 {product.images.length > 1 && (
                   <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-                    {product.images.map((_, index) => (
+                    {product.images.map((_image: any, index: number) => (
                       <button
                         key={index}
                         onClick={() => setActiveImageIndex(index)}
@@ -136,7 +136,7 @@ export function ProductDetailPage() {
           {/* Thumbnails */}
           {product.images.length > 1 && (
             <div className="flex gap-2 overflow-x-auto pb-2">
-              {product.images.map((image, index) => (
+              {product.images.map((image: any, index: number) => (
                 <button
                   key={image.id}
                   onClick={() => setActiveImageIndex(index)}
@@ -193,7 +193,7 @@ export function ProductDetailPage() {
             <fieldset className="space-y-3 border-t border-b border-gray-100 py-6">
               <legend className="text-sm font-medium text-gray-900">Select Variant</legend>
               <div className="flex flex-wrap gap-2">
-                {product.variants.map((variant) => (
+                {product.variants.map((variant: ProductVariant) => (
                   <button
                     key={variant.id}
                     onClick={() => {

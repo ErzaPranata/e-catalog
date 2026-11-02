@@ -1,5 +1,5 @@
 {
-  "buildCommand": "npm run build:vercel",
+  "buildCommand": "pnpm install --frozen-lockfile && pnpm run build:vercel",
   "outputDirectory": "dist",
   "framework": "vite",
   "rewrites": [

@@ -1,14 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { settingsApi } from '@/lib/api';
-import { StoreSettings, UpdateSettingsDto } from '@/types';
+import { UpdateSettingsDto } from '@/types';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { showToast } from '@/components/ui/Toast';
 import { Button } from '@/components/ui/Button';
 import { Input, Label, FormError, Textarea } from '@/components/ui/Input';
-import { cn } from '@/utils/helpers';
 
 const settingsSchema = z.object({
   storeName: z.string().min(1, 'Store name is required').max(100),
@@ -25,7 +24,7 @@ export function AdminSettingsPage() {
   const queryClient = useQueryClient();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { data: settings, isLoading } = useQuery({
+  const { data: settings } = useQuery({
     queryKey: ['adminSettings'],
     queryFn: () => settingsApi.adminGet(),
   });
@@ -44,7 +43,7 @@ export function AdminSettingsPage() {
     },
   });
 
-  const { register, handleSubmit, reset, formState: { errors }, setValue } = useForm<SettingsFormData>({
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<SettingsFormData>({
     resolver: zodResolver(settingsSchema),
     defaultValues: {
       storeName: '',
