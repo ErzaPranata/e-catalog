@@ -3,24 +3,24 @@
   "buildCommand": "pnpm install --frozen-lockfile && pnpm run build",
   "outputDirectory": "dist",
   "installCommand": "pnpm install --frozen-lockfile",
-  "framework": "nestjs",
   "functions": {
-    "src/main.ts": {
-      "maxDuration": 60
+    "src/main.js": {
+      "maxDuration": 60,
+      "runtime": "nodejs20.x"
     }
   },
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "/src/main.ts"
+      "destination": "/src/main.js"
     },
     {
       "source": "/health",
-      "destination": "/src/main.ts"
+      "destination": "/src/main.js"
     },
     {
       "source": "/docs/(.*)",
-      "destination": "/src/main.ts"
+      "destination": "/src/main.js"
     }
   ],
   "headers": [
